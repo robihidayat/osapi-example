@@ -52,6 +52,8 @@ A. Make Master Key
 
         
 B. Encript 
+    
+berikut potongan source code untuk encript file properties tersebut: 
 
     org.owasp.esapi.reference.crypto.DefaultEncryptedProperties ep = new org.owasp.esapi.reference.crypto.DefaultEncryptedProperties;
 
@@ -81,4 +83,41 @@ B. Encript
             try { if ( out != null ) out.close(); } catch( Exception e ) {}
             }
 
+Pada dasarnya source code encript tersebut menggunakan class org.owasp.esapi.reference.crypto.DefaultEncryptedProperties. 
+
 C. Decript 
+
+Pada main program, Proses Decript sebenarnya ada di class DisplayEncryptedProperties, hanya saja di jalankan pada main. 
+        
+        try{
+            DisplayEncryptedProperties dep = new DisplayEncryptedProperties();
+            Properties props = new Properties();
+            dep.loadProperties(encryptedPropFname, props);
+        }  catch(Throwable t) {
+            System.err.println("Caught: " + t.getClass().getName() + "; exception msg: " + t);
+        t.printStackTrace(System.err); 
+        }
+
+dimana function pada DefaultEncryptedProperties adalah sebagai berikut: 
+
+        public void loadProperties(String encryptedPropertiesFilename,
+                                          Properties props )
+                throws IOException, EncryptionException
+            {
+                 EncryptedProperties loader = new DefaultEncryptedProperties();
+                 loader.load( new FileInputStream(
+                                            new File( encryptedPropertiesFilename) ) );
+
+                Iterator<?> i = loader.keySet().iterator();
+                while (i.hasNext()) {
+                    String k = (String) i.next();
+                    String value = loader.getProperty(k);
+                    System.out.println("   " + k + "= "+value);
+                }
+
+
+            }
+
+dan untuk menjalankan program tersebut setelah di compile: 
+
+        java -Dlog4j.configuration=file:/Users/robihidayat/NetBeansProjects/esapi-java-legacy/src/test/resources/log4j.xml -jar target/EspaiEncrip-1.0-SNAPSHOT.jar encrypted.properties
