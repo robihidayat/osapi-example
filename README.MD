@@ -1,5 +1,5 @@
 
-#Project OWASP ESAPI 
+# Project OWASP ESAPI 
 
 untuk bisa menggunakan OWASP ESAPI kita perlu menambahkan dependensi pada pom.xml, bisa anda menggunakan mavan builder. 
 version yang dipakai adalah 2.1.0.1. 
@@ -14,15 +14,20 @@ version yang dipakai adalah 2.1.0.1.
 
 ## Cara menggunakannya
 
-###Pertama kita generate Master Key. 
+### Pertama kita generate Master Key. 
     
-    Master Key tersebut digunakan untuk proses 
+    Master Key tersebut digunakan untuk proses Encripsi dan Proses Decripsi. 
     
+### Requriemt
     
+    Pertama siapkan file log4j.xml, validation.properties, ESPI.properties. lalu masukan pada folder di home. 
+    file tersebut bisa didapatkan dari link berikut [https://github.com/ESAPI/esapi-java-legacy/tree/develop/src/test/resources]
+
 A. Make Master Key 
 
-Define Parameter: 
+    Tahap kedua adalah generate Master key, berikut potongan source code untuk generate Master Key: 
 
+    // Define Parameter: 
     private static String encryptAlgorithm = "AES";
     private static int encryptionKeyLength = 128;
     private static String randomAlgorithm = "SHA1PRNG";
