@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DisplayEncryptedProperties.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">EspaiEncrip</a> &gt; <a href="index.source.html" class="el_package">com.auteam.espaiencrip</a> &gt; <span class="el_source">DisplayEncryptedProperties.java</span></div><h1>DisplayEncryptedProperties.java</h1><pre class="source lang-java linenums">/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.auteam.espaiencrip;
+import java.io.*;
+import java.util.*;
+import org.owasp.esapi.EncryptedProperties;
+import org.owasp.esapi.errors.EncryptionException;
+import org.owasp.esapi.reference.crypto.DefaultEncryptedProperties;
+
+// Purpose: Short code snippet to show how to display encrypted property files
+//          that were encrypted using ESAPI's EncryptedProperties class.
+//
+// Usage: java -classpath &lt;cp&gt; DisplayEncryptedProperties encryptedPropFileName
+//        where &lt;cp&gt; is proper classpath, which minimally include esapi.jar &amp; log4j.jar
+public class DisplayEncryptedProperties {
+
+<span class="nc" id="L20">    public DisplayEncryptedProperties() {</span>
+<span class="nc" id="L21">    }</span>
+
+    public void loadProperties(String encryptedPropertiesFilename,
+                                  Properties props )
+        throws IOException, EncryptionException
+    {
+<span class="nc" id="L27">         EncryptedProperties loader = new DefaultEncryptedProperties();</span>
+<span class="nc" id="L28">         loader.load( new FileInputStream(</span>
+                                    new File( encryptedPropertiesFilename) ) );
+         
+<span class="nc" id="L31">        Iterator&lt;?&gt; i = loader.keySet().iterator();</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        while (i.hasNext()) {</span>
+<span class="nc" id="L33">            String k = (String) i.next();</span>
+<span class="nc" id="L34">            String value = loader.getProperty(k);</span>
+<span class="nc" id="L35">            System.out.println(&quot;   &quot; + k + &quot;= &quot;+value);</span>
+<span class="nc" id="L36">        }</span>
+        
+
+<span class="nc" id="L39">    }</span>
+
+    public void showProperties(Properties props) throws Exception
+    {
+<span class="nc" id="L43">        System.out.println(&quot;&quot;);</span>
+<span class="nc" id="L44">        String value = null;</span>
+<span class="nc" id="L45">        value = props.getProperty( &quot;database.driver&quot;);</span>
+<span class="nc" id="L46">        System.out.println(&quot;database.driver=&quot; + value);</span>
+<span class="nc" id="L47">        value = props.getProperty( &quot;jdbc.url&quot;);</span>
+<span class="nc" id="L48">        System.out.println(&quot;jdbc.url=&quot; + value);</span>
+<span class="nc" id="L49">        value = props.getProperty( &quot;jdbc.username&quot;);</span>
+<span class="nc" id="L50">        System.out.println(&quot;jdbc.username=&quot; + value);</span>
+<span class="nc" id="L51">        value = props.getProperty( &quot;jdbc.password&quot;);</span>
+<span class="nc" id="L52">        System.out.println(&quot;jdbc.password=&quot; + value);</span>
+<span class="nc" id="L53">    }</span>
+
+
+    public static void main(String[] args) {
+
+        try {
+<span class="nc" id="L59">            DisplayEncryptedProperties dep = new DisplayEncryptedProperties();</span>
+<span class="nc" id="L60">            Properties props = new Properties();</span>
+
+<span class="nc" id="L62">            String encryptedPropFname = &quot;encrypted.properties&quot;;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if ( args.length == 1 ) {</span>
+<span class="nc" id="L64">                encryptedPropFname = args[0];</span>
+            } else {
+<span class="nc" id="L66">                System.err.println(&quot;Usage: java -classpath &lt;cp&gt; DisplayEncryptedProperties encryptedPropFileName&quot;);</span>
+<span class="nc" id="L67">                System.exit(2);</span>
+            }
+
+<span class="nc" id="L70">            dep.loadProperties(encryptedPropFname, props);</span>
+<span class="nc" id="L71">            dep.showProperties(props);</span>
+
+<span class="nc" id="L73">        } catch(Throwable t) {</span>
+<span class="nc" id="L74">            System.err.println(&quot;Caught: &quot; + t.getClass().getName() +</span>
+                               &quot;; exception msg: &quot; + t);
+<span class="nc" id="L76">            t.printStackTrace(System.err);</span>
+<span class="nc" id="L77">        }</span>
+<span class="nc" id="L78">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

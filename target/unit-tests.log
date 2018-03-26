@@ -1,0 +1,2 @@
+DEBUG [SECURITY SUCCESS Anonymous:null@unknown -> /ExampleApplication/EncryptedProperties.main] Loading encrypted properties from /Users/robihidayat/NetBeansProjects/EspaiEncrip/encrypted.properties
+DEBUG [SECURITY SUCCESS Anonymous:null@unknown -> /ExampleApplication/EncryptedProperties.main] Encrypted properties found in /Users/robihidayat/NetBeansProjects/EspaiEncrip/encrypted.properties

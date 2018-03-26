@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DefaultEncryptedProperties.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">EspaiEncrip</a> &gt; <a href="index.source.html" class="el_package">com.auteam.espaiencrip</a> &gt; <span class="el_source">DefaultEncryptedProperties.java</span></div><h1>DefaultEncryptedProperties.java</h1><pre class="source lang-java linenums">/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.auteam.espaiencrip;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+import org.owasp.esapi.ESAPI;
+import org.owasp.esapi.Logger;
+import org.owasp.esapi.crypto.CipherText;
+import org.owasp.esapi.crypto.PlainText;
+import org.owasp.esapi.errors.EncryptionException;
+
+/**
+ *
+ * @author robihidayat
+ */
+public class DefaultEncryptedProperties implements org.owasp.esapi.EncryptedProperties{
+
+    /** The properties. */
+<span class="nc" id="L33">	private final Properties properties = new Properties();</span>
+
+	/** The logger. */
+<span class="nc" id="L36">	private final Logger logger = ESAPI.getLogger(&quot;EncryptedProperties&quot;);</span>
+
+	/**
+	 * Instantiates a new encrypted properties.
+	 */
+<span class="nc" id="L41">	public DefaultEncryptedProperties() {</span>
+		// hidden
+<span class="nc" id="L43">	}</span>
+
+    @Override
+    public synchronized String getProperty(String key) throws EncryptionException {
+<span class="nc" id="L47">        String[] errorMsgs = new String[] {</span>
+	            &quot;: failed decoding from base64&quot;,
+	            &quot;: failed to deserialize properly&quot;,
+	            &quot;: failed to decrypt properly&quot;
+	        };
+<span class="nc" id="L52">        int progressMark = 0;</span>
+	    try {
+<span class="nc" id="L54">	        String encryptedValue = properties.getProperty(key);</span>
+
+<span class="nc bnc" id="L56" title="All 2 branches missed.">	        if(encryptedValue==null)</span>
+<span class="nc" id="L57">	            return null;</span>
+
+<span class="nc" id="L59">	        progressMark = 0;</span>
+<span class="nc" id="L60">	        byte[] serializedCiphertext   = ESAPI.encoder().decodeFromBase64(encryptedValue);</span>
+<span class="nc" id="L61">	        progressMark++;</span>
+<span class="nc" id="L62">	        CipherText restoredCipherText = CipherText.fromPortableSerializedBytes(serializedCiphertext);</span>
+<span class="nc" id="L63">	        progressMark++;</span>
+<span class="nc" id="L64">	        PlainText plaintext           = ESAPI.encryptor().decrypt(restoredCipherText);</span>
+	        
+<span class="nc" id="L66">	        return plaintext.toString();</span>
+<span class="nc" id="L67">	    } catch (Exception e) {</span>
+<span class="nc" id="L68">	        throw new EncryptionException(&quot;Property retrieval failure&quot;,</span>
+	                                      &quot;Couldn't retrieve encrypted property for property &quot; + key +
+	                                      errorMsgs[progressMark], e);
+	    }
+    }
+
+    @Override
+    public synchronized String setProperty(String key, String value) throws EncryptionException {
+<span class="nc" id="L76">            String[] errorMsgs = new String[] {</span>
+	            &quot;: failed to encrypt properly&quot;,
+	            &quot;: failed to serialize correctly&quot;,
+	            &quot;: failed to base64-encode properly&quot;,
+	            &quot;: failed to set base64-encoded value as property. Illegal key name?&quot;
+	    };
+
+<span class="nc" id="L83">	    int progressMark = 0;</span>
+	    try {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">	        if ( key == null ) {</span>
+<span class="nc" id="L86">	            throw new NullPointerException(&quot;Property name may not be null.&quot;);</span>
+	        }
+<span class="nc bnc" id="L88" title="All 2 branches missed.">	        if ( value == null ) {</span>
+<span class="nc" id="L89">	            throw new NullPointerException(&quot;Property value may not be null.&quot;);</span>
+	        }
+	        // NOTE: Not backward compatible w/ ESAPI 1.4.
+<span class="nc" id="L92">	        PlainText pt = new PlainText(value);</span>
+<span class="nc" id="L93">	        CipherText ct = ESAPI.encryptor().encrypt(pt);</span>
+               // System.out.println(&quot;ct : &quot;+ct);
+<span class="nc" id="L95">	        progressMark++;</span>
+<span class="nc" id="L96">                System.out.println(&quot;CipherText getCipherMode : &quot;+ct.getCipherMode());</span>
+<span class="nc" id="L97">                System.out.println(&quot;CipherText getBase64EncodedRawCipherText : &quot;+ct.getBase64EncodedRawCipherText());</span>
+<span class="nc" id="L98">                System.out.println(&quot;CipherText getCipherTransformation : &quot;+ct.getCipherTransformation());</span>
+<span class="nc" id="L99">                System.out.println(&quot;CipherText getEncryptionTimestamp : &quot;+ct.getEncryptionTimestamp());</span>
+<span class="nc" id="L100">                System.out.println(&quot;CipherText asPortableSerializedByteArray : &quot;+Arrays.toString(ct.asPortableSerializedByteArray()));</span>
+<span class="nc" id="L101">                System.out.println(&quot;CipherText getSeparateMAC : &quot;+Arrays.toString(ct.getSeparateMAC()));</span>
+<span class="nc" id="L102">                System.out.println(&quot;CipherText getEncodedIVCipherText : &quot;+ct.getEncodedIVCipherText());</span>
+
+                
+
+<span class="nc" id="L106">	        byte[] serializedCiphertext = ct.asPortableSerializedByteArray();</span>
+               // System.out.println(&quot;serializedCiphertext : &quot;+Arrays.toString(serializedCiphertext));
+<span class="nc" id="L108">	        progressMark++;</span>
+<span class="nc" id="L109">	        String b64str = ESAPI.encoder().encodeForBase64(serializedCiphertext, false);</span>
+<span class="nc" id="L110">                System.out.println(&quot;b64str : &quot;+b64str);</span>
+<span class="nc" id="L111">	        progressMark++;</span>
+<span class="nc" id="L112">	        String encryptedValue = (String)properties.setProperty(key, b64str);</span>
+                //System.out.println(&quot;encryptedValue : &quot;+encryptedValue);
+<span class="nc" id="L114">	        progressMark++;</span>
+<span class="nc" id="L115">	        return encryptedValue;</span>
+<span class="nc" id="L116">	    } catch (Exception e) {</span>
+<span class="nc" id="L117">	        throw new EncryptionException(&quot;Property setting failure&quot;,</span>
+	                                      &quot;Couldn't set encrypted property &quot; + key +
+	                                      errorMsgs[progressMark], e);
+	    }
+    }
+
+    @Override
+    public Set&lt;?&gt; keySet() {
+<span class="nc" id="L125">        return properties.keySet();    </span>
+    }
+
+    @Override
+    public void load(InputStream in) throws IOException {
+<span class="nc" id="L130">        properties.load(in);</span>
+<span class="nc" id="L131">        logger.trace(Logger.SECURITY_SUCCESS, &quot;Encrypted properties loaded successfully&quot;);</span>
+<span class="nc" id="L132">    }</span>
+
+    @Override
+    public void store(OutputStream out, String comments) throws IOException {
+<span class="nc" id="L136">            properties.store(out, comments);</span>
+<span class="nc" id="L137">    }</span>
+    
+    @Deprecated
+        public static void main(String[] args) throws Exception {
+<span class="nc" id="L141">            File f = new File(args[0]);</span>
+<span class="nc" id="L142">            ESAPI.getLogger( &quot;EncryptedProperties.main&quot; ).debug(Logger.SECURITY_SUCCESS, &quot;Loading encrypted properties from &quot; + f.getAbsolutePath() );</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if ( !f.exists() ) throw new IOException( &quot;Properties file not found: &quot; + f.getAbsolutePath() );</span>
+<span class="nc" id="L144">            ESAPI.getLogger( &quot;EncryptedProperties.main&quot; ).debug(Logger.SECURITY_SUCCESS, &quot;Encrypted properties found in &quot; + f.getAbsolutePath() );</span>
+<span class="nc" id="L145">            org.owasp.esapi.reference.crypto.DefaultEncryptedProperties ep = new org.owasp.esapi.reference.crypto.DefaultEncryptedProperties();</span>
+
+<span class="nc" id="L147">            FileInputStream in = null;</span>
+<span class="nc" id="L148">            FileOutputStream out = null;</span>
+            try {
+<span class="nc" id="L150">            in = new FileInputStream(f);</span>
+<span class="nc" id="L151">            out = new FileOutputStream(f);</span>
+
+<span class="nc" id="L153">            ep.load(in);   </span>
+<span class="nc" id="L154">            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));</span>
+<span class="nc" id="L155">            String key = null;</span>
+            do {
+<span class="nc" id="L157">                System.out.print(&quot;Enter key: &quot;);</span>
+<span class="nc" id="L158">                key = br.readLine();</span>
+<span class="nc" id="L159">                System.out.print(&quot;Enter value: &quot;);</span>
+<span class="nc" id="L160">                String value = br.readLine();</span>
+<span class="nc bnc" id="L161" title="All 8 branches missed.">                if (key != null &amp;&amp; key.length() &gt; 0 &amp;&amp; value != null &amp;&amp; value.length() &gt; 0) {</span>
+<span class="nc" id="L162">                        ep.setProperty(key, value);</span>
+                }
+<span class="nc bnc" id="L164" title="All 4 branches missed.">            } while (key != null &amp;&amp; key.length() &gt; 0);</span>
+<span class="nc" id="L165">                ep.store(out, &quot;Encrypted Properties File&quot;);</span>
+            } finally {
+                // FindBugs and PMD both complain about these next lines, that they may
+                // ignore thrown exceptions. Really!!! That's the whole point.
+<span class="nc bnc" id="L169" title="All 4 branches missed.">                try { if ( in != null ) in.close(); } catch( Exception e ) {}</span>
+<span class="nc bnc" id="L170" title="All 4 branches missed.">                try { if ( out != null ) out.close(); } catch( Exception e ) {}</span>
+<span class="nc" id="L171">            }</span>
+
+<span class="nc" id="L173">            Iterator&lt;?&gt; i = ep.keySet().iterator();</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">            while (i.hasNext()) {</span>
+<span class="nc" id="L175">                String k = (String) i.next();</span>
+<span class="nc" id="L176">                String value = ep.getProperty(k);</span>
+<span class="nc" id="L177">                System.out.println(&quot;   &quot; + k + &quot;=&quot; + value);</span>
+<span class="nc" id="L178">            }</span>
+<span class="nc" id="L179">    }</span>
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
